@@ -1,0 +1,14 @@
+Port 2222
+PermitRootLogin no
+PubkeyAuthentication yes
+AuthorizedKeysFile  /etc/ssh/authorized_keys
+PasswordAuthentication yes
+PermitEmptyPasswords no
+AllowAgentForwarding no
+AllowTcpForwarding no
+GatewayPorts no
+X11Forwarding no
+PrintMotd no
+PrintLastLog no
+TCPKeepAlive yes
+Subsystem   sftp    /usr/lib/ssh/sftp-server
