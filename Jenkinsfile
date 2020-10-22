@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-@Library('jenkins-libraries')_
+@Library('jenkins-libraries@build')_
 
 pipeline {
     agent {
@@ -18,7 +18,6 @@ pipeline {
         VERSION = getVersion("${GIT_BRANCH}")
         GIT_ORG = getGitGroup("${GIT_URL}")
         GIT_REPO = getGitRepo("${GIT_URL}")
-        BUILD_TAG = "${GIT_REPO}:${VERSION}"
     }
     stages {
         stage('Init') {
@@ -30,8 +29,7 @@ pipeline {
                         "GIT_BRANCH:    ${GIT_BRANCH}\n" +
                         "VERSION:       ${VERSION}\n" +
                         "GIT_ORG:       ${GIT_ORG}\n" +
-                        "GIT_REPO:      ${GIT_REPO}\n" +
-                        "BUILD_TAG:     ${BUILD_TAG}\n"
+                        "GIT_REPO:      ${GIT_REPO}\n"
                 verifyBuild()
                 sendDiscord("${DISCORD_ID}", "Pipeline Started by: ${BUILD_CAUSE}")
             }
@@ -42,13 +40,17 @@ pipeline {
                     not { branch 'master' }
                 }
             }
+            environment {
+                BUILD_TAG = "${GIT_ORG}/${GIT_REPO}:${VERSION}"
+            }
             steps {
                 echo "\n--- Starting Dev Build ---\n" +
                         "VERSION:       ${VERSION}\n" +
+                        "GIT_ORG:       ${GIT_ORG}\n" +
                         "GIT_BRANCH:    ${GIT_BRANCH}\n" +
                         "BUILD_TAG:     ${BUILD_TAG}\n"
                 sendDiscord("${DISCORD_ID}", "Dev Build Started for: ${BUILD_TAG}")
-                sh "docker build --tag ${BUILD_TAG} ."
+                buildPush("${BUILD_TAG}")
                 sendDiscord("${DISCORD_ID}", "Dev Push Finished for: ${BUILD_TAG}")
             }
         }
@@ -59,13 +61,17 @@ pipeline {
                     triggeredBy 'UserIdCause'
                 }
             }
+            environment {
+                BUILD_TAG = "${GIT_ORG}/${GIT_REPO}:${VERSION}"
+            }
             steps {
                 echo "\n--- Starting Prod Build ---\n" +
                         "VERSION:       ${VERSION}\n" +
+                        "GIT_ORG:       ${GIT_ORG}\n" +
                         "GIT_BRANCH:    ${GIT_BRANCH}\n" +
                         "BUILD_TAG:     ${BUILD_TAG}\n"
                 sendDiscord("${DISCORD_ID}", "Prod Build Started for: ${BUILD_TAG}")
-                sh "docker build --tag ${BUILD_TAG} ."
+                buildPush("${BUILD_TAG}")
                 sendDiscord("${DISCORD_ID}", "Prod Push Finished for: ${BUILD_TAG}")
             }
         }
