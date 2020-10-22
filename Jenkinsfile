@@ -18,6 +18,7 @@ pipeline {
         VERSION = getVersion("${GIT_BRANCH}")
         GIT_ORG = getGitGroup("${GIT_URL}")
         GIT_REPO = getGitRepo("${GIT_URL}")
+        REPO_ORG = "public"
     }
     stages {
         stage('Init') {
@@ -41,7 +42,7 @@ pipeline {
                 }
             }
             environment {
-                BUILD_TAG = "${GIT_ORG}/${GIT_REPO}:${VERSION}"
+                BUILD_TAG = "${REPO_ORG}/${GIT_REPO}:${VERSION}"
             }
             steps {
                 echo "\n--- Starting Dev Build ---\n" +
@@ -62,7 +63,7 @@ pipeline {
                 }
             }
             environment {
-                BUILD_TAG = "${GIT_ORG}/${GIT_REPO}:${VERSION}"
+                BUILD_TAG = "${REPO_ORG}/${GIT_REPO}:${VERSION}"
             }
             steps {
                 echo "\n--- Starting Prod Build ---\n" +
