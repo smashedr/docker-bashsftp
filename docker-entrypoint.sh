@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [[ -z "${SFTP_PASS}" ]];then
     echo "No SFTP_PASS provided. Aborting for security."
     exit 1
 fi
+
 [[ -z "${SFTP_USER}" ]] && SFTP_USER="ftpuser"
 [[ -z "${SFTP_HOME}" ]] && SFTP_HOME="/data"
 [[ -z "${SFTP_PORT}" ]] && SFTP_PORT="2222"
@@ -21,7 +24,10 @@ fi
 if [[ "${SFTP_PORT}" != "2222" ]];then
     sed -i "s/Port 2222/Port ${SFTP_PORT}/" /etc/ssh/sshd_config
 fi
-adduser -D -H -h "${SFTP_HOME}" -G root "${SFTP_USER}"
+
+if ! id -u "${SFTP_HOME}" >/dev/null 2>&1;then
+    adduser -D -H -h "${SFTP_HOME}" -G root "${SFTP_USER}"
+fi
 if [[ "${SFTP_PASS:0:3}" = '$6$' ]];then
     sed -i "s/${SFTP_USER}:!/${SFTP_USER}:${SFTP_PASS}/" /etc/shadow
 else
